@@ -1,8 +1,8 @@
 /**
  * angular-strap
- * @version v2.0.0-beta.4 - 2014-01-20
+ * @version v2.0.0-beta.4 - 2014-01-28
  * @link http://mgcrea.github.io/angular-strap
- * @author Olivier Louvignes <olivier@mg-crea.com>
+ * @author [object Object]
  * @license MIT License, http://www.opensource.org/licenses/MIT
  */
 'use strict';
@@ -235,6 +235,13 @@ angular.module('mgcrea.ngStrap.select', [
             controller.$render();
           });
         });
+        scope.$watch(function () {
+          return attr.ngModel;
+        }, function (newValue, oldValue) {
+          if (newValue !== oldValue) {
+            select.update(select.$scope.$matches);
+          }
+        });
         controller.$render = function () {
           var selected, index;
           if (options.multiple && angular.isArray(controller.$modelValue)) {
@@ -246,7 +253,7 @@ angular.module('mgcrea.ngStrap.select', [
             index = select.$getIndex(controller.$modelValue);
             selected = angular.isDefined(index) ? select.$scope.$matches[index].label : false;
           }
-          element.html((selected ? selected : attr.placeholder || defaults.placeholder) + defaults.caretHtml);
+          element.html('<span class="selected">' + (selected ? selected : attr.placeholder || defaults.placeholder) + '</span>' + defaults.caretHtml);
         };
         scope.$on('$destroy', function () {
           select.destroy();
