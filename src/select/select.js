@@ -282,7 +282,9 @@ angular.module('mgcrea.ngStrap.select', ['mgcrea.ngStrap.tooltip', 'mgcrea.ngStr
             index = select.$getIndex(controller.$modelValue);
             selected = angular.isDefined(index) ? select.$scope.$matches[index].label : false;
           }
-          element.html((selected ? selected : attr.placeholder || defaults.placeholder) + defaults.caretHtml);
+
+          // Add a span tag to allow text truncation
+          element.html('<span class="selected">' + (selected ? selected : attr.placeholder || defaults.placeholder)+ '</span>' + defaults.caretHtml);
         };
 
         // Garbage collection
