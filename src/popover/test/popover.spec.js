@@ -55,6 +55,10 @@ describe('popover', function () {
     'options-template': {
       scope: {popover: {title: 'Title', content: 'Hello Popover!', counter: 0}, items: ['foo', 'bar', 'baz']},
       element: '<a data-template="custom" bs-popover="popover">click me</a>'
+    },
+    'options-programmatic-trigger' : {
+        scope: { id : "test", popover: {title: 'Title', content: 'Hello Popover!', counter: 0}, items: ['foo', 'bar', 'baz']},
+        element: '<a data-template="custom" bs-popover="popover">click me</a>'
     }
   };
 
@@ -208,6 +212,20 @@ describe('popover', function () {
       });
 
     });
+
+      describe('programaticTrigger', function () {
+
+          it('should programatically show the popover at the given location', function() {
+              var elm = compileDirective('options-programmatic-trigger');
+
+
+              angular.element(elm[0]).triggerHandler('click');
+              expect(sandboxEl.find('.popover-title').html()).toBe(scope.popover.title);
+              expect(sandboxEl.find('.popover-content').html()).toBe(scope.popover.content);
+          });
+
+      });
+
 
   });
 

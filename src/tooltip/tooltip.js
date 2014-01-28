@@ -166,7 +166,7 @@ angular.module('mgcrea.ngStrap.tooltip', ['mgcrea.ngStrap.helpers.dimensions'])
 
         };
 
-        $tooltip.show = function() {
+        $tooltip.show = function(position) {
 
           var parent = options.container ? findElement(options.container) : null;
           var after = options.container ? null : element;
@@ -185,7 +185,9 @@ angular.module('mgcrea.ngStrap.tooltip', ['mgcrea.ngStrap.helpers.dimensions'])
           $animate.enter(tipElement, parent, after, function() {});
           $tooltip.$isShown = true;
           scope.$$phase || scope.$digest();
-          requestAnimationFrame($tooltip.$applyPlacement);
+          requestAnimationFrame(function(){
+              $tooltip.$applyPlacement(position);
+          });
 
           // Bind events
           if(options.keyboard) {
@@ -243,11 +245,23 @@ angular.module('mgcrea.ngStrap.tooltip', ['mgcrea.ngStrap.helpers.dimensions'])
 
         // Protected methods
 
-        $tooltip.$applyPlacement = function() {
+        $tooltip.$applyPlacement = function(position) {
           if(!tipElement) return;
 
           // Get the position of the tooltip element.
           var elementPosition = getPosition();
+
+            if(position){
+                // If an absolute position was given then center to that position
+
+                // First we correct the position to make it relative to element[0]
+                var absolutePos = dimensions.offset(element[0]);
+                elementPosition.top = position.top - absolutePos.top;
+                elementPosition.left = position.left - absolutePos.left;
+                // Second we make a size of 1 pixel
+                elementPosition.width = 1;
+                elementPosition.heigth = 1;
+            }
 
           // Get the height and width of the tooltip so we can center it.
           var tipWidth = tipElement.prop('offsetWidth'),

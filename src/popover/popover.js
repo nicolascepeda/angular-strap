@@ -80,7 +80,22 @@ angular.module('mgcrea.ngStrap.popover', ['mgcrea.ngStrap.tooltip'])
         }, true);
 
         // Initialize popover
-        var popover = $popover(element, options);
+          var popover = $popover(element, options);
+
+          // If we have defined an id then add custom listeners
+          if(attr.id !== undefined){
+              scope.$on('show.'+attr.id, function(evt, position){
+                  popover.show(position);
+              });
+              scope.$on('hide.'+attr.id, function(evt, msg){
+                  if(popover.$isShown){
+                      popover.hide();
+                  }
+              });
+              scope.$on('toggle.'+attr.id, function(evt, position){
+                  popover.toggle(position);
+              });
+          }
 
         // Garbage collection
         scope.$on('$destroy', function() {
