@@ -263,7 +263,7 @@ angular.module('mgcrea.ngStrap.select', ['mgcrea.ngStrap.tooltip', 'mgcrea.ngStr
           scope.$watch(function () {
               return controller.$modelValue;
           }, function(newValue, oldValue) {
-              if(newValue != oldValue){
+              if(newValue !== oldValue){
                   // Trigger update on select
                   select.update(select.$scope.$matches);
               }

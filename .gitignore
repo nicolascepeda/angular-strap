@@ -3,3 +3,7 @@ target
 .idea
 .settings
 out
+.tmp/
+bower_components/
+node_modules/
+test/coverage/
