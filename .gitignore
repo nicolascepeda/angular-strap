@@ -1,11 +1,5 @@
-.dev/
-.tmp/
-.DS_Store
-*.sublime-project
-*.sublime-workspace
-bower_components/
-node_modules/
-/pages/
-/docs/
-/test/coverage/
-!.gitignore
+target
+*.iml
+.idea
+.settings
+out
