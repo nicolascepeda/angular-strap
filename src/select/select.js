@@ -260,6 +260,15 @@ angular.module('mgcrea.ngStrap.select', ['mgcrea.ngStrap.tooltip', 'mgcrea.ngStr
           });
         });
 
+          scope.$watch(function () {
+              return controller.$modelValue;
+          }, function(newValue, oldValue) {
+              if(newValue != oldValue){
+                  // Trigger update on select
+                  select.update(select.$scope.$matches);
+              }
+          });
+
         // Model rendering in view
         controller.$render = function () {
           // console.warn('$render', element.attr('ng-model'), 'controller.$modelValue', typeof controller.$modelValue, controller.$modelValue, 'controller.$viewValue', typeof controller.$viewValue, controller.$viewValue);
