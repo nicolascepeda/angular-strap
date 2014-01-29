@@ -1,6 +1,6 @@
 /**
  * angular-strap
- * @version v2.0.0-beta.4 - 2014-01-28
+ * @version v2.0.0-beta.4 - 2014-01-29
  * @link http://mgcrea.github.io/angular-strap
  * @author [object Object]
  * @license MIT License, http://www.opensource.org/licenses/MIT

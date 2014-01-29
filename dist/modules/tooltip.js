@@ -1,6 +1,6 @@
 /**
  * angular-strap
- * @version v2.0.0-beta.4 - 2014-01-28
+ * @version v2.0.0-beta.4 - 2014-01-29
  * @link http://mgcrea.github.io/angular-strap
  * @author [object Object]
  * @license MIT License, http://www.opensource.org/licenses/MIT
@@ -142,7 +142,7 @@ angular.module('mgcrea.ngStrap.tooltip', ['mgcrea.ngStrap.helpers.dimensions']).
               $tooltip.show();
           }, options.delay.show);
         };
-        $tooltip.show = function () {
+        $tooltip.show = function (position) {
           var parent = options.container ? findElement(options.container) : null;
           var after = options.container ? null : element;
           tipElement = $tooltip.$element = tipLinker(scope, function (clonedElement, scope) {
@@ -160,7 +160,9 @@ angular.module('mgcrea.ngStrap.tooltip', ['mgcrea.ngStrap.helpers.dimensions']).
           });
           $tooltip.$isShown = true;
           scope.$$phase || scope.$digest();
-          requestAnimationFrame($tooltip.$applyPlacement);
+          requestAnimationFrame(function () {
+            $tooltip.$applyPlacement(position);
+          });
           if (options.keyboard) {
             if (options.trigger !== 'focus') {
               $tooltip.focus();
@@ -202,10 +204,17 @@ angular.module('mgcrea.ngStrap.tooltip', ['mgcrea.ngStrap.helpers.dimensions']).
         $tooltip.focus = function () {
           tipElement[0].focus();
         };
-        $tooltip.$applyPlacement = function () {
+        $tooltip.$applyPlacement = function (position) {
           if (!tipElement)
             return;
           var elementPosition = getPosition();
+          if (position) {
+            var absolutePos = dimensions.offset(element[0]);
+            elementPosition.top = position.top - absolutePos.top;
+            elementPosition.left = position.left - absolutePos.left;
+            elementPosition.width = 1;
+            elementPosition.heigth = 1;
+          }
           var tipWidth = tipElement.prop('offsetWidth'), tipHeight = tipElement.prop('offsetHeight');
           var tipPosition = getCalculatedOffset(options.placement, elementPosition, tipWidth, tipHeight);
           tipPosition.top += 'px';
