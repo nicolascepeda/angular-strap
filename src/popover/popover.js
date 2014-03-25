@@ -82,17 +82,18 @@ angular.module('mgcrea.ngStrap.popover', ['mgcrea.ngStrap.tooltip'])
         // Initialize popover
           var popover = $popover(element, options);
 
+          scope.$on('hide.popovers', function(evt, msg){
+              if(popover.$isShown){
+                  popover.hide();
+              }
+          });
+
           // If we have defined an id then add custom listeners
           if(attr.id !== undefined){
               scope.$on('show.'+attr.id, function(evt, position){
                   popover.show(position);
               });
               scope.$on('hide.'+attr.id, function(evt, msg){
-                  if(popover.$isShown){
-                      popover.hide();
-                  }
-              });
-              scope.$on('hide.popovers', function(evt, msg){
                   if(popover.$isShown){
                       popover.hide();
                   }
