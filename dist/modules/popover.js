@@ -1,6 +1,6 @@
 /**
  * angular-strap
- * @version v2.0.0-beta.4 - 2014-01-29
+ * @version v2.0.0-beta.4 - 2014-03-25
  * @link http://mgcrea.github.io/angular-strap
  * @author [object Object]
  * @license MIT License, http://www.opensource.org/licenses/MIT
@@ -24,8 +24,10 @@ angular.module('mgcrea.ngStrap.popover', ['mgcrea.ngStrap.tooltip']).provider('$
     '$tooltip',
     function ($tooltip) {
       function PopoverFactory(element, config) {
+        // Common vars
         var options = angular.extend({}, defaults, config);
         var $popover = $tooltip(element, options);
+        // Support scope as string options [/*title, */content]
         if (options.content) {
           $popover.$scope.content = options.content;
         }
@@ -45,6 +47,7 @@ angular.module('mgcrea.ngStrap.popover', ['mgcrea.ngStrap.tooltip']).provider('$
       restrict: 'EAC',
       scope: true,
       link: function postLink(scope, element, attr) {
+        // Directive options
         var options = { scope: scope };
         angular.forEach([
           'template',
@@ -60,6 +63,7 @@ angular.module('mgcrea.ngStrap.popover', ['mgcrea.ngStrap.tooltip']).provider('$
           if (angular.isDefined(attr[key]))
             options[key] = attr[key];
         });
+        // Support scope as data-attrs
         angular.forEach([
           'title',
           'content'
@@ -71,6 +75,7 @@ angular.module('mgcrea.ngStrap.popover', ['mgcrea.ngStrap.tooltip']).provider('$
             });
           });
         });
+        // Support scope as an object
         attr.bsPopover && scope.$watch(attr.bsPopover, function (newValue, oldValue) {
           if (angular.isObject(newValue)) {
             angular.extend(scope, newValue);
@@ -81,7 +86,9 @@ angular.module('mgcrea.ngStrap.popover', ['mgcrea.ngStrap.tooltip']).provider('$
             popover && popover.$applyPlacement();
           });
         }, true);
+        // Initialize popover
         var popover = $popover(element, options);
+        // If we have defined an id then add custom listeners
         if (attr.id !== undefined) {
           scope.$on('show.' + attr.id, function (evt, position) {
             popover.show(position);
@@ -91,10 +98,16 @@ angular.module('mgcrea.ngStrap.popover', ['mgcrea.ngStrap.tooltip']).provider('$
               popover.hide();
             }
           });
+          scope.$on('hide.popovers', function (evt, msg) {
+            if (popover.$isShown) {
+              popover.hide();
+            }
+          });
           scope.$on('toggle.' + attr.id, function (evt, position) {
             popover.toggle(position);
           });
         }
+        // Garbage collection
         scope.$on('$destroy', function () {
           popover.destroy();
           options = null;

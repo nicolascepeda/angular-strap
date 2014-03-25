@@ -1,6 +1,6 @@
 /**
  * angular-strap
- * @version v2.0.0-beta.4 - 2014-01-29
+ * @version v2.0.0-beta.4 - 2014-03-25
  * @link http://mgcrea.github.io/angular-strap
  * @author [object Object]
  * @license MIT License, http://www.opensource.org/licenses/MIT
@@ -35,6 +35,7 @@ angular.module('mgcrea.ngStrap.select', [
       var isTouch = 'createTouch' in $window.document;
       function SelectFactory(element, controller, config) {
         var $select = {};
+        // Common vars
         var options = angular.extend({}, defaults, config);
         $select = $tooltip(element, options);
         var parentScope = config.scope;
@@ -58,6 +59,7 @@ angular.module('mgcrea.ngStrap.select', [
         scope.$isActive = function (index) {
           return $select.$isActive(index);
         };
+        // Public methods
         $select.update = function (matches) {
           scope.$matches = matches;
           if (controller.$modelValue && matches.length) {
@@ -96,18 +98,22 @@ angular.module('mgcrea.ngStrap.select', [
           controller.$render();
           if (parentScope)
             parentScope.$digest();
+          // Hide if single select
           if (!options.multiple) {
             if (options.trigger === 'focus')
               element[0].blur();
             else if ($select.$isShown)
               $select.hide();
           }
+          // Emit event
           scope.$emit('$select.select', value, index);
         };
+        // Protected methods
         $select.$isVisible = function () {
           if (!options.minLength || !controller) {
             return scope.$matches.length;
           }
+          // minLength support
           return scope.$matches.length && controller.$viewValue.length >= options.minLength;
         };
         $select.$isActive = function (index) {
@@ -139,8 +145,10 @@ angular.module('mgcrea.ngStrap.select', [
           }
         };
         $select.$onMouseDown = function (evt) {
+          // Prevent blur on mousedown on .dropdown-menu
           evt.preventDefault();
           evt.stopPropagation();
+          // Emulate click for mobile devices
           if (isTouch) {
             var targetEl = angular.element(evt.target);
             targetEl.triggerHandler('click');
@@ -151,9 +159,11 @@ angular.module('mgcrea.ngStrap.select', [
             return;
           evt.preventDefault();
           evt.stopPropagation();
+          // Select with enter
           if (evt.keyCode === 13) {
             return $select.select(scope.$activeIndex);
           }
+          // Navigate with keyboard
           if (evt.keyCode === 38 && scope.$activeIndex > 0)
             scope.$activeIndex--;
           else if (evt.keyCode === 40 && scope.$activeIndex < scope.$matches.length - 1)
@@ -162,6 +172,7 @@ angular.module('mgcrea.ngStrap.select', [
             scope.$activeIndex = 0;
           scope.$digest();
         };
+        // Overrides
         var _init = $select.init;
         $select.init = function () {
           _init();
@@ -211,6 +222,7 @@ angular.module('mgcrea.ngStrap.select', [
       restrict: 'EAC',
       require: 'ngModel',
       link: function postLink(scope, element, attr, controller) {
+        // Directive options
         var options = { scope: scope };
         angular.forEach([
           'placement',
@@ -227,8 +239,17 @@ angular.module('mgcrea.ngStrap.select', [
           if (angular.isDefined(attr[key]))
             options[key] = attr[key];
         });
+        // if(element[0].nodeName.toLowerCase() === 'select') {
+        //   var inputEl = element;
+        //   inputEl.css('display', 'none');
+        //   element = angular.element('<div class="btn btn-default"></div>');
+        //   inputEl.after(element);
+        // }
+        // Build proper ngOptions
         var parsedOptions = $parseOptions(attr.ngOptions);
+        // Initialize select
         var select = $select(element, controller, options);
+        // Watch ngOptions values for changes
         scope.$watch(parsedOptions.$match[7], function (newValue, oldValue) {
           parsedOptions.valuesFn(scope, controller).then(function (values) {
             select.update(values);
@@ -239,10 +260,13 @@ angular.module('mgcrea.ngStrap.select', [
           return controller.$modelValue;
         }, function (newValue, oldValue) {
           if (newValue !== oldValue) {
+            // Trigger update on select
             select.update(select.$scope.$matches);
           }
         });
+        // Model rendering in view
         controller.$render = function () {
+          // console.warn('$render', element.attr('ng-model'), 'controller.$modelValue', typeof controller.$modelValue, controller.$modelValue, 'controller.$viewValue', typeof controller.$viewValue, controller.$viewValue);
           var selected, index;
           if (options.multiple && angular.isArray(controller.$modelValue)) {
             selected = controller.$modelValue.map(function (value) {
@@ -253,8 +277,10 @@ angular.module('mgcrea.ngStrap.select', [
             index = select.$getIndex(controller.$modelValue);
             selected = angular.isDefined(index) ? select.$scope.$matches[index].label : false;
           }
+          // Add a span tag to allow text truncation
           element.html('<span class="selected">' + (selected ? selected : attr.placeholder || defaults.placeholder) + '</span>' + defaults.caretHtml);
         };
+        // Garbage collection
         scope.$on('$destroy', function () {
           select.destroy();
           options = null;

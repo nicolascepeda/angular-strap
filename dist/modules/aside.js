@@ -1,6 +1,6 @@
 /**
  * angular-strap
- * @version v2.0.0-beta.4 - 2014-01-29
+ * @version v2.0.0-beta.4 - 2014-03-25
  * @link http://mgcrea.github.io/angular-strap
  * @author [object Object]
  * @license MIT License, http://www.opensource.org/licenses/MIT
@@ -25,6 +25,7 @@ angular.module('mgcrea.ngStrap.aside', ['mgcrea.ngStrap.modal']).provider('$asid
     function ($modal) {
       function AsideFactory(config) {
         var $aside = {};
+        // Common vars
         var options = angular.extend({}, defaults, config);
         $aside = $modal(options);
         return $aside;
@@ -43,6 +44,7 @@ angular.module('mgcrea.ngStrap.aside', ['mgcrea.ngStrap.modal']).provider('$asid
       restrict: 'EAC',
       scope: true,
       link: function postLink(scope, element, attr, transclusion) {
+        // Directive options
         var options = {
             scope: scope,
             element: element,
@@ -61,6 +63,7 @@ angular.module('mgcrea.ngStrap.aside', ['mgcrea.ngStrap.modal']).provider('$asid
           if (angular.isDefined(attr[key]))
             options[key] = attr[key];
         });
+        // Support scope as data-attrs
         angular.forEach([
           'title',
           'content'
@@ -69,6 +72,7 @@ angular.module('mgcrea.ngStrap.aside', ['mgcrea.ngStrap.modal']).provider('$asid
             scope[key] = newValue;
           });
         });
+        // Support scope as an object
         attr.bsAside && scope.$watch(attr.bsAside, function (newValue, oldValue) {
           if (angular.isObject(newValue)) {
             angular.extend(scope, newValue);
@@ -76,8 +80,11 @@ angular.module('mgcrea.ngStrap.aside', ['mgcrea.ngStrap.modal']).provider('$asid
             scope.content = newValue;
           }
         }, true);
+        // Initialize aside
         var aside = $aside(options);
+        // Trigger
         element.on(attr.trigger || 'click', aside.toggle);
+        // Garbage collection
         scope.$on('$destroy', function () {
           aside.destroy();
           options = null;

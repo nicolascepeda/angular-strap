@@ -1,6 +1,6 @@
 /**
  * angular-strap
- * @version v2.0.0-beta.4 - 2014-01-29
+ * @version v2.0.0-beta.4 - 2014-03-25
  * @link http://mgcrea.github.io/angular-strap
  * @author [object Object]
  * @license MIT License, http://www.opensource.org/licenses/MIT
@@ -23,11 +23,13 @@ angular.module('mgcrea.ngStrap.navbar', []).provider('$navbar', function () {
     return {
       restrict: 'A',
       link: function postLink(scope, element, attr, controller) {
+        // Directive options
         var options = defaults;
         angular.forEach(Object.keys(defaults), function (key) {
           if (angular.isDefined(attr[key]))
             options[key] = attr[key];
         });
+        // Watch for the $location
         scope.$watch(function () {
           return $location.path();
         }, function (newValue, oldValue) {

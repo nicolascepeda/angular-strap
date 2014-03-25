@@ -1,11 +1,14 @@
 /**
  * angular-strap
- * @version v2.0.0-beta.4 - 2014-01-29
+ * @version v2.0.0-beta.4 - 2014-03-25
  * @link http://mgcrea.github.io/angular-strap
  * @author [object Object]
  * @license MIT License, http://www.opensource.org/licenses/MIT
  */
 'use strict';
+// @BUG: following snippet won't compile correctly
+// @TODO: submit issue to core
+// '<span ng-if="title"><strong ng-bind="title"></strong>&nbsp;</span><span ng-bind-html="content"></span>' +
 angular.module('mgcrea.ngStrap.alert', []).run([
   '$templateCache',
   function ($templateCache) {
@@ -31,11 +34,14 @@ angular.module('mgcrea.ngStrap.alert', []).run([
     function ($modal, $timeout) {
       function AlertFactory(config) {
         var $alert = {};
+        // Common vars
         var options = angular.extend({}, defaults, config);
         $alert = $modal(options);
+        // Support scope as string options [/*title, content, */type]
         if (options.type) {
           $alert.$scope.type = options.type;
         }
+        // Support auto-close duration
         var show = $alert.show;
         if (options.duration) {
           $alert.show = function () {
@@ -61,6 +67,7 @@ angular.module('mgcrea.ngStrap.alert', []).run([
       restrict: 'EAC',
       scope: true,
       link: function postLink(scope, element, attr, transclusion) {
+        // Directive options
         var options = {
             scope: scope,
             element: element,
@@ -78,6 +85,7 @@ angular.module('mgcrea.ngStrap.alert', []).run([
           if (angular.isDefined(attr[key]))
             options[key] = attr[key];
         });
+        // Support scope as data-attrs
         angular.forEach([
           'title',
           'content',
@@ -87,6 +95,7 @@ angular.module('mgcrea.ngStrap.alert', []).run([
             scope[key] = newValue;
           });
         });
+        // Support scope as an object
         attr.bsAlert && scope.$watch(attr.bsAlert, function (newValue, oldValue) {
           if (angular.isObject(newValue)) {
             angular.extend(scope, newValue);
@@ -94,8 +103,11 @@ angular.module('mgcrea.ngStrap.alert', []).run([
             scope.content = newValue;
           }
         }, true);
+        // Initialize alert
         var alert = $alert(options);
+        // Trigger
         element.on(attr.trigger || 'click', alert.toggle);
+        // Garbage collection
         scope.$on('$destroy', function () {
           alert.destroy();
           options = null;
