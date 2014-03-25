@@ -92,12 +92,11 @@ angular.module('mgcrea.ngStrap.popover', ['mgcrea.ngStrap.tooltip'])
                       popover.hide();
                   }
               });
-              /*
               scope.$on('hide.popovers', function(evt, msg){
                   if(popover.$isShown){
                       popover.hide();
                   }
-              });*/
+              });
               scope.$on('toggle.'+attr.id, function(evt, position){
                   popover.toggle(position);
               });
