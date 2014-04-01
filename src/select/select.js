@@ -223,78 +223,88 @@ angular.module('mgcrea.ngStrap.select', ['mgcrea.ngStrap.tooltip', 'mgcrea.ngStr
 
   })
 
-  .directive('bsSelect', function($window, $parse, $q, $select, $parseOptions) {
+    .directive('bsSelect', function ($window, $parse, $q, $select, $parseOptions, $translate) {
 
-    var defaults = $select.defaults;
+        var defaults = $select.defaults;
 
-    return {
-      restrict: 'EAC',
-      require: 'ngModel',
-      link: function postLink(scope, element, attr, controller) {
+        return {
+            restrict: 'EAC',
+            require: 'ngModel',
+            link: function postLink(scope, element, attr, controller) {
 
-        // Directive options
-        var options = {scope: scope};
-        angular.forEach(['placement', 'container', 'delay', 'trigger', 'keyboard', 'html', 'animation', 'template', 'placeholder', 'multiple'], function(key) {
-          if(angular.isDefined(attr[key])) options[key] = attr[key];
-        });
+                // Directive options
+                var options = {scope: scope};
+                angular.forEach(['placement', 'container', 'delay', 'trigger', 'keyboard', 'html', 'animation', 'template', 'placeholder', 'multiple'], function (key) {
+                    if (angular.isDefined(attr[key])) options[key] = attr[key];
+                });
 
-        // if(element[0].nodeName.toLowerCase() === 'select') {
-        //   var inputEl = element;
-        //   inputEl.css('display', 'none');
-        //   element = angular.element('<div class="btn btn-default"></div>');
-        //   inputEl.after(element);
-        // }
+                // if(element[0].nodeName.toLowerCase() === 'select') {
+                //   var inputEl = element;
+                //   inputEl.css('display', 'none');
+                //   element = angular.element('<div class="btn btn-default"></div>');
+                //   inputEl.after(element);
+                // }
 
-        // Build proper ngOptions
-        var parsedOptions = $parseOptions(attr.ngOptions);
+                // Build proper ngOptions
+                var parsedOptions = $parseOptions(attr.ngOptions);
 
-        // Initialize select
-        var select = $select(element, controller, options);
+                // Initialize select
+                var select = $select(element, controller, options);
 
-        // Watch ngOptions values for changes
-        scope.$watch(parsedOptions.$match[7], function(newValue, oldValue) {
-          parsedOptions.valuesFn(scope, controller)
-          .then(function(values) {
-            select.update(values);
-            controller.$render();
-          });
-        });
+                // Watch ngOptions values for changes
+                scope.$watch(parsedOptions.$match[7], function (newValue, oldValue) {
+                    parsedOptions.valuesFn(scope, controller)
+                        .then(function (values) {
+                            select.update(values);
+                            controller.$render();
+                        });
+                });
 
-          scope.$watch(function () {
-              return controller.$modelValue;
-          }, function(newValue, oldValue) {
-              if(newValue !== oldValue){
-                  // Trigger update on select
-                  select.update(select.$scope.$matches);
-              }
-          });
+                scope.$watch(function () {
+                    return controller.$modelValue;
+                }, function (newValue, oldValue) {
+                    if (newValue !== oldValue) {
+                        // Trigger update on select
+                        select.update(select.$scope.$matches);
+                    }
+                });
 
-        // Model rendering in view
-        controller.$render = function () {
-          // console.warn('$render', element.attr('ng-model'), 'controller.$modelValue', typeof controller.$modelValue, controller.$modelValue, 'controller.$viewValue', typeof controller.$viewValue, controller.$viewValue);
-          var selected, index;
-          if(options.multiple && angular.isArray(controller.$modelValue)) {
-            selected = controller.$modelValue.map(function(value) {
-              index = select.$getIndex(value);
-              return angular.isDefined(index) ? select.$scope.$matches[index].label : false;
-            }).filter(angular.isDefined).join(', ');
-          } else {
-            index = select.$getIndex(controller.$modelValue);
-            selected = angular.isDefined(index) ? select.$scope.$matches[index].label : false;
-          }
+                // Model rendering in view
+                controller.$render = function () {
+                    // console.warn('$render', element.attr('ng-model'), 'controller.$modelValue', typeof controller.$modelValue, controller.$modelValue, 'controller.$viewValue', typeof controller.$viewValue, controller.$viewValue);
+                    var selected, index;
+                    if (options.multiple && angular.isArray(controller.$modelValue)) {
+                        selected = controller.$modelValue.map(function (value) {
+                            index = select.$getIndex(value);
+                            return angular.isDefined(index) ? select.$scope.$matches[index].label : false;
+                        });
 
-          // Add a span tag to allow text truncation
-          element.html('<span class="selected">' + (selected ? selected : attr.placeholder || defaults.placeholder)+ '</span>' + defaults.caretHtml);
+                        if(selected.length == 0){
+                            selected = null;
+                        } else if(selected.length == parsedOptions.$values.length){
+                            selected = $translate("bsSelect.allSelected");
+                        } else if(selected.length == 1){
+                            selected = selected[0]
+                        } else if(selected.length > 1){
+                            selected = $translate("bsSelect.nSelected", {count : selected.length});
+                        }
+
+                    } else {
+                        index = select.$getIndex(controller.$modelValue);
+                        selected = angular.isDefined(index) ? select.$scope.$matches[index].label : false;
+                    }
+
+                    // Add a span tag to allow text truncation
+                    element.html('<span class="selected">' + (selected ? selected : attr.placeholder || defaults.placeholder) + '</span>' + defaults.caretHtml);
+                };
+
+                // Garbage collection
+                scope.$on('$destroy', function () {
+                    select.destroy();
+                    options = null;
+                    select = null;
+                });
+
+            }
         };
-
-        // Garbage collection
-        scope.$on('$destroy', function() {
-          select.destroy();
-          options = null;
-          select = null;
-        });
-
-      }
-    };
-
   });
