@@ -1,6 +1,6 @@
 /**
  * angular-strap
- * @version v2.0.0-beta.4 - 2014-03-25
+ * @version v2.0.0-beta.4 - 2014-04-01
  * @link http://mgcrea.github.io/angular-strap
  * @author [object Object]
  * @license MIT License, http://www.opensource.org/licenses/MIT
@@ -88,6 +88,11 @@ angular.module('mgcrea.ngStrap.popover', ['mgcrea.ngStrap.tooltip']).provider('$
         }, true);
         // Initialize popover
         var popover = $popover(element, options);
+        scope.$on('hide.popovers', function (evt, msg) {
+          if (popover.$isShown) {
+            popover.hide();
+          }
+        });
         // If we have defined an id then add custom listeners
         if (attr.id !== undefined) {
           scope.$on('show.' + attr.id, function (evt, position) {
@@ -98,12 +103,6 @@ angular.module('mgcrea.ngStrap.popover', ['mgcrea.ngStrap.tooltip']).provider('$
               popover.hide();
             }
           });
-          /*
-              scope.$on('hide.popovers', function(evt, msg){
-                  if(popover.$isShown){
-                      popover.hide();
-                  }
-              });*/
           scope.$on('toggle.' + attr.id, function (evt, position) {
             popover.toggle(position);
           });

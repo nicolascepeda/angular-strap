@@ -1,6 +1,6 @@
 /**
  * angular-strap
- * @version v2.0.0-beta.4 - 2014-03-25
+ * @version v2.0.0-beta.4 - 2014-04-01
  * @link http://mgcrea.github.io/angular-strap
  * @author [object Object]
  * @license MIT License, http://www.opensource.org/licenses/MIT
@@ -216,7 +216,8 @@ angular.module('mgcrea.ngStrap.select', [
   '$q',
   '$select',
   '$parseOptions',
-  function ($window, $parse, $q, $select, $parseOptions) {
+  '$translate',
+  function ($window, $parse, $q, $select, $parseOptions, $translate) {
     var defaults = $select.defaults;
     return {
       restrict: 'EAC',
@@ -272,7 +273,16 @@ angular.module('mgcrea.ngStrap.select', [
             selected = controller.$modelValue.map(function (value) {
               index = select.$getIndex(value);
               return angular.isDefined(index) ? select.$scope.$matches[index].label : false;
-            }).filter(angular.isDefined).join(', ');
+            });
+            if (selected.length == 0) {
+              selected = null;
+            } else if (selected.length == parsedOptions.$values.length) {
+              selected = $translate('bsSelect.allSelected');
+            } else if (selected.length == 1) {
+              selected = selected[0];
+            } else if (selected.length > 1) {
+              selected = $translate('bsSelect.nSelected', { count: selected.length });
+            }
           } else {
             index = select.$getIndex(controller.$modelValue);
             selected = angular.isDefined(index) ? select.$scope.$matches[index].label : false;

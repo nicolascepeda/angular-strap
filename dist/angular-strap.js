@@ -1,6 +1,6 @@
 /**
  * angular-strap
- * @version v2.0.0-beta.4 - 2014-03-25
+ * @version v2.0.0-beta.4 - 2014-04-01
  * @link http://mgcrea.github.io/angular-strap
  * @author [object Object]
  * @license MIT License, http://www.opensource.org/licenses/MIT
@@ -1906,6 +1906,11 @@
           }, true);
           // Initialize popover
           var popover = $popover(element, options);
+          scope.$on('hide.popovers', function (evt, msg) {
+            if (popover.$isShown) {
+              popover.hide();
+            }
+          });
           // If we have defined an id then add custom listeners
           if (attr.id !== undefined) {
             scope.$on('show.' + attr.id, function (evt, position) {
@@ -1916,12 +1921,6 @@
                 popover.hide();
               }
             });
-            /*
-              scope.$on('hide.popovers', function(evt, msg){
-                  if(popover.$isShown){
-                      popover.hide();
-                  }
-              });*/
             scope.$on('toggle.' + attr.id, function (evt, position) {
               popover.toggle(position);
             });
@@ -2365,7 +2364,8 @@
     '$q',
     '$select',
     '$parseOptions',
-    function ($window, $parse, $q, $select, $parseOptions) {
+    '$translate',
+    function ($window, $parse, $q, $select, $parseOptions, $translate) {
       var defaults = $select.defaults;
       return {
         restrict: 'EAC',
@@ -2421,7 +2421,16 @@
               selected = controller.$modelValue.map(function (value) {
                 index = select.$getIndex(value);
                 return angular.isDefined(index) ? select.$scope.$matches[index].label : false;
-              }).filter(angular.isDefined).join(', ');
+              });
+              if (selected.length == 0) {
+                selected = null;
+              } else if (selected.length == parsedOptions.$values.length) {
+                selected = $translate('bsSelect.allSelected');
+              } else if (selected.length == 1) {
+                selected = selected[0];
+              } else if (selected.length > 1) {
+                selected = $translate('bsSelect.nSelected', { count: selected.length });
+              }
             } else {
               index = select.$getIndex(controller.$modelValue);
               selected = angular.isDefined(index) ? select.$scope.$matches[index].label : false;
