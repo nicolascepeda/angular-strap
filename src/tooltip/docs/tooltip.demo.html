@@ -24,18 +24,18 @@
   <div class="bs-example" style="padding-bottom: 24px;" append-source>
 
     <!-- Markup for a default tooltip with a scope passed as an object {title:''} -->
-    <p>Tight pants next level keffiyeh <a href="" data-animation="animation-flipX" bs-tooltip="tooltip">you probably</a> haven't heard of them. Photo booth beard raw denim letterpress vegan messenger bag stumptown.</p>
+    <p>Tight pants next level keffiyeh <a href="" data-animation="am-flip-x" bs-tooltip="tooltip">you probably</a> haven't heard of them. Photo booth beard raw denim letterpress vegan messenger bag stumptown.</p>
 
     <div class="input-group col-xs-5">
       <span class="input-group-btn">
         <!-- You can also use data-attrs to assign scope variables -->
-        <button class="btn btn-primary" type="button" data-trigger="click" data-type="success" title="{{tooltip.title}}" bs-tooltip="tooltip">Click me</button>
+        <button class="btn btn-primary" type="button" data-trigger="click" data-type="success" data-title="{{tooltip.title}}" bs-tooltip>Click me</button>
       </span>
       <input type="text" class="form-control" data-placement="right" data-type="info" data-container="body" placeholder="Focus to toggle tooltip" data-trigger="focus" bs-tooltip="tooltip">
     </div>
     <div class="checkbox">
-      <label data-placement="bottom" data-animation="animation-fadeAndScale" data-type="info" data-animation="animation-fadeAndScale" bs-tooltip="tooltip">
-        <input type="checkbox" ng-model="tooltip.checked"> Remember me
+      <label data-placement="bottom-left" data-type="info" data-animation="am-fade-and-scale" bs-tooltip="tooltip" bs-enabled="tooltip.checked">
+        <input type="checkbox" ng-model="tooltip.checked" > Check me to enable my tooltip
       </label>
     </div>
 
@@ -77,19 +77,22 @@
         <tr>
           <td>animation</td>
           <td>string</td>
-          <td>animation-fade</td>
+          <td>am-fade</td>
           <td>apply a CSS animation powered by <code>ngAnimate</code></td>
         </tr>
         <tr>
           <td>placement</td>
           <td>string</td>
-          <td>'right'</td>
-          <td>how to position the tooltip - top | bottom | left | right, or any combination like bottom-left.</td>
+          <td>'top'</td>
+          <td>
+            how to position the tooltip - top | bottom | left | right | auto, or any combination like bottom-left or auto bottom-left.<br>
+            When "auto" is specified, it will dynamically reorient the tooltip. For example, if placement is "auto left", the tooltip will display to the left when possible, otherwise it will display right.
+          </td>
         </tr>
         <tr>
           <td>trigger</td>
           <td>string</td>
-          <td>'click'</td>
+          <td>'hover focus'</td>
           <td>how tooltip is triggered - click | hover | focus | manual</td>
         </tr>
         <tr>
@@ -126,12 +129,20 @@
           </td>
         </tr>
         <tr>
+          <td>target</td>
+          <td>string | DOMElement | false</td>
+          <td>false</td>
+          <td>
+            <p>Position the tooltip relative to a specific target element.</p>
+          </td>
+        </tr>
+        <tr>
           <td>template</td>
           <td>path</td>
           <td>false</td>
           <td>
             <p>If provided, overrides the default template, can be either a remote URL or a cached template id.</p>
-            <p>It should be a <code>div.tooltip</code> element following Twitter Bootstrap styles conventions (<a href="//github.com/mgcrea/angular-strap/blob/master/src/tooltip/tooltip.tpl.html" target="_blank">like this</a>).</p>
+            <p>It should be a <code>div.tooltip</code> element following Bootstrap styles conventions (<a href="//github.com/mgcrea/angular-strap/blob/master/src/tooltip/tooltip.tpl.html" target="_blank">like this</a>).</p>
           </td>
         </tr>
         <tr>
@@ -140,6 +151,14 @@
           <td>false</td>
           <td>
             <p>If provided, fetches the partial and includes it as the inner content, can be either a remote URL or a cached template id.</p>
+          </td>
+        </tr>
+        <tr>
+          <td>prefixEvent</td>
+          <td>string</td>
+          <td>'tooltip'</td>
+          <td>
+            <p>If provided, prefixes the events '.hide.before' '.hide' '.show.before' and '.show' with the passed in value. With the default value these events are 'tooltip.hide.before' 'tooltip.hide' 'tooltip.show.before' and 'tooltip.show'</p>
           </td>
         </tr>
       </tbody>
@@ -154,13 +173,48 @@
           angular.module('myApp')
           .config(function($tooltipProvider) {
             angular.extend($tooltipProvider.defaults, {
-              animation: 'animation-flipX',
+              animation: 'am-flip-x',
               trigger: 'hover'
             });
           })
         </code>
       </pre>
     </div>
+  </div>
+
+  <h3>Helper attributes</h3>
+  <p>Helper attributes can be used together with the directive via data-attributes to support specific functionality. Helper attributes support data binding. To use helper attributes, append the helper attribute name to <code>data-</code>, as in <code>data-bs-show="true"</code>.</p>
+  <div class="table-responsive">
+    <table class="table table-bordered table-striped">
+      <thead>
+        <tr>
+          <th style="width: 100px;">Name</th>
+          <th style="width: 100px;">type</th>
+          <th style="width: 50px;">default</th>
+          <th>description</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>bsShow</td>
+          <td>boolean | string</td>
+          <td>false</td>
+          <td>
+            <p>shows or hides the tooltip. Supports boolean values or "true"/"false" string values.</p>
+            <p>You can also specify "tooltip" to show just the tooltip when using several angular-strap directives on the same element.</p>
+          </td>
+        </tr>
+        <tr>
+          <td>bsEnabled</td>
+          <td>boolean | string</td>
+          <td>true</td>
+          <td>
+            <p>enables or disables the tooltip trigger. When the tooltip is disabled, calling show() will have no effect.</p>
+            <p>Supports boolean values or "true" "false" "1" "0" string values.</p>
+          </td>
+        </tr>
+      </tbody>
+    </table>
   </div>
 
   <h3>Scope methods</h3>
@@ -175,4 +229,6 @@
   <h4>$toggle()</h4>
   <p>Toggles the tooltip.</p>
 
+  <h4>$setEnabled(isEnabled)</h4>
+  <p>Enables or disables the tooltip.</p>
 </div>

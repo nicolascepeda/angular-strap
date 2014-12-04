@@ -43,6 +43,7 @@ angular.module('mgcrea.ngStrap.scrollspy', ['mgcrea.ngStrap.helpers.debounce', '
         var $scrollspy = {};
 
         // Private vars
+        var unbindViewContentLoaded, unbindIncludeContentLoaded;
         var trackedElements = $scrollspy.$trackedElements = [];
         var sortedElements = [];
         var activeTarget;
@@ -65,8 +66,8 @@ angular.module('mgcrea.ngStrap.scrollspy', ['mgcrea.ngStrap.helpers.debounce', '
           scrollEl.on('scroll', throttledCheckPosition);
 
           debouncedCheckOffsets = debounce(this.checkOffsets, options.debounce);
-          $rootScope.$on('$viewContentLoaded', debouncedCheckOffsets);
-          $rootScope.$on('$includeContentLoaded', debouncedCheckOffsets);
+          unbindViewContentLoaded = $rootScope.$on('$viewContentLoaded', debouncedCheckOffsets);
+          unbindIncludeContentLoaded = $rootScope.$on('$includeContentLoaded', debouncedCheckOffsets);
           debouncedCheckOffsets();
 
           // Register spy for reuse
@@ -88,9 +89,11 @@ angular.module('mgcrea.ngStrap.scrollspy', ['mgcrea.ngStrap.helpers.debounce', '
           scrollEl.off('click', this.checkPositionWithEventLoop);
           windowEl.off('resize', debouncedCheckPosition);
           scrollEl.off('scroll', debouncedCheckPosition);
-          $rootScope.$off('$viewContentLoaded', debouncedCheckOffsets);
-          $rootScope.$off('$includeContentLoaded', debouncedCheckOffsets);
-
+          unbindViewContentLoaded();
+          unbindIncludeContentLoaded();
+          if (scrollId) {
+            delete spies[scrollId];
+          }
         };
 
         $scrollspy.checkPosition = function() {
@@ -121,7 +124,9 @@ angular.module('mgcrea.ngStrap.scrollspy', ['mgcrea.ngStrap.helpers.debounce', '
         };
 
         $scrollspy.checkPositionWithEventLoop = function() {
-          setTimeout(this.checkPosition, 1);
+          // IE 9 throws an error if we use 'this' instead of '$scrollspy'
+          // in this setTimeout call
+          setTimeout($scrollspy.checkPosition, 1);
         };
 
         // Protected methods
@@ -218,8 +223,10 @@ angular.module('mgcrea.ngStrap.scrollspy', ['mgcrea.ngStrap.helpers.debounce', '
         scrollspy.trackElement(options.target, element);
 
         scope.$on('$destroy', function() {
-          scrollspy.untrackElement(options.target, element);
-          scrollspy.destroy();
+          if (scrollspy) {
+            scrollspy.untrackElement(options.target, element);
+            scrollspy.destroy();
+          }
           options = null;
           scrollspy = null;
         });

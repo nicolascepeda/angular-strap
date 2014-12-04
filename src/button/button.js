@@ -35,7 +35,7 @@ angular.module('mgcrea.ngStrap.button', [])
 
   })
 
-  .directive('bsCheckbox', function($button) {
+  .directive('bsCheckbox', function($button, $$rAF) {
 
     var defaults = $button.defaults;
     var constantValueRegExp = /^(true|false|\d+)$/;
@@ -67,6 +67,11 @@ angular.module('mgcrea.ngStrap.button', [])
             // console.warn('$parser', element.attr('ng-model'), 'viewValue', viewValue);
             return viewValue ? trueValue : falseValue;
           });
+          // modelValue -> $formatters -> viewValue
+          controller.$formatters.push(function(modelValue) {
+             // console.warn('$formatter("%s"): modelValue=%o (%o)', element.attr('ng-model'), modelValue, typeof modelValue);
+             return angular.equals(modelValue, trueValue);
+          });
           // Fix rendering for exotic values
           scope.$watch(attr.ngModel, function(newValue, oldValue) {
             controller.$render();
@@ -77,10 +82,10 @@ angular.module('mgcrea.ngStrap.button', [])
         controller.$render = function () {
           // console.warn('$render', element.attr('ng-model'), 'controller.$modelValue', typeof controller.$modelValue, controller.$modelValue, 'controller.$viewValue', typeof controller.$viewValue, controller.$viewValue);
           var isActive = angular.equals(controller.$modelValue, trueValue);
-          if(isInput) {
-            element[0].checked = isActive;
-          }
-          activeElement.toggleClass(options.activeClass, isActive);
+          $$rAF(function() {
+            if(isInput) element[0].checked = isActive;
+            activeElement.toggleClass(options.activeClass, isActive);
+          });
         };
 
         // view -> model
@@ -121,7 +126,7 @@ angular.module('mgcrea.ngStrap.button', [])
 
   })
 
-  .directive('bsRadio', function($button) {
+  .directive('bsRadio', function($button, $$rAF) {
 
     var defaults = $button.defaults;
     var constantValueRegExp = /^(true|false|\d+)$/;
@@ -143,10 +148,10 @@ angular.module('mgcrea.ngStrap.button', [])
         controller.$render = function () {
           // console.warn('$render', element.attr('value'), 'controller.$modelValue', typeof controller.$modelValue, controller.$modelValue, 'controller.$viewValue', typeof controller.$viewValue, controller.$viewValue);
           var isActive = angular.equals(controller.$modelValue, value);
-          if(isInput) {
-            element[0].checked = isActive;
-          }
-          activeElement.toggleClass(options.activeClass, isActive);
+          $$rAF(function() {
+            if(isInput) element[0].checked = isActive;
+            activeElement.toggleClass(options.activeClass, isActive);
+          });
         };
 
         // view -> model

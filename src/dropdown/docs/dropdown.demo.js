@@ -2,17 +2,24 @@
 
 angular.module('mgcrea.ngStrapDocs')
 
-.controller('DropdownDemoCtrl', function($scope, $window) {
+.config(function($dropdownProvider) {
+  angular.extend($dropdownProvider.defaults, {
+    html: true
+  });
+})
+
+.controller('DropdownDemoCtrl', function($scope, $alert) {
 
   $scope.dropdown = [
-    {text: 'Another action', href: '#anotherAction'},
-    {text: 'Something else here', click: '$alert(\'working ngClick!\')'},
+    {text: '<i class="fa fa-download"></i>&nbsp;Another action', href: '#anotherAction'},
+    {text: '<i class="fa fa-globe"></i>&nbsp;Display an alert', click: '$alert("Holy guacamole!")'},
+    {text: '<i class="fa fa-external-link"></i>&nbsp;External link', href: '/auth/facebook', target: '_self'},
     {divider: true},
     {text: 'Separated link', href: '#separatedLink'}
   ];
 
-  $scope.$alert = function(txt) {
-    $window.alert(txt);
+  $scope.$alert = function(title) {
+    $alert({title: title, content: 'Best check yo self, you\'re not looking too good.', placement: 'top', type: 'info', keyboard: true, show: true});
   };
 
 });

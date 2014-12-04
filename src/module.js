@@ -6,6 +6,7 @@ angular.module('mgcrea.ngStrap', [
   'mgcrea.ngStrap.button',
   'mgcrea.ngStrap.select',
   'mgcrea.ngStrap.datepicker',
+  'mgcrea.ngStrap.timepicker',
   'mgcrea.ngStrap.navbar',
   'mgcrea.ngStrap.tooltip',
   'mgcrea.ngStrap.popover',
@@ -14,4 +15,5 @@ angular.module('mgcrea.ngStrap', [
   'mgcrea.ngStrap.scrollspy',
   'mgcrea.ngStrap.affix',
   'mgcrea.ngStrap.tab',
+  'mgcrea.ngStrap.collapse'
 ]);

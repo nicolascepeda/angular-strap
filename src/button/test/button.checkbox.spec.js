@@ -2,15 +2,18 @@
 
 describe('bs-checkbox', function () {
 
-  var $compile, $q, scope, sandboxEl;
+  var $compile, $q, $$rAF, scope, sandboxEl;
 
+  beforeEach(module('ngAnimate'));
+  beforeEach(module('ngAnimateMock'));
   beforeEach(module('mgcrea.ngStrap.button'));
 
-  beforeEach(inject(function (_$rootScope_, _$compile_, _$q_) {
+  beforeEach(inject(function (_$rootScope_, _$compile_, _$q_, _$$rAF_) {
     scope = _$rootScope_;
-    sandboxEl = $('<div>').attr('id', 'sandbox').appendTo('body');
+    $$rAF = _$$rAF_;
     $compile = _$compile_;
     $q = _$q_;
+    sandboxEl = $('<div>').attr('id', 'sandbox').appendTo('body');
   }));
 
   afterEach(function() {
@@ -52,6 +55,7 @@ describe('bs-checkbox', function () {
     var element = $(template.element).appendTo(sandboxEl);
     element = $compile(element)(scope);
     scope.$digest();
+    $$rAF.flush();
     return jQuery(element[0]);
   }
 
@@ -65,6 +69,7 @@ describe('bs-checkbox', function () {
       expect(element.children('input').is(':checked')).toBeFalsy();
       scope.checkbox.value = true;
       scope.$digest();
+      $$rAF.flush();
       expect(element).toHaveClass('active');
       expect(element.children('input').is(':checked')).toBeTruthy();
     });
@@ -75,6 +80,7 @@ describe('bs-checkbox', function () {
       expect(element.children('input').is(':checked')).toBeTruthy();
       scope.checkbox.value = false;
       scope.$digest();
+      $$rAF.flush();
       expect(element).not.toHaveClass('active');
       expect(element.children('input').is(':checked')).toBeFalsy();
     });
@@ -85,6 +91,7 @@ describe('bs-checkbox', function () {
       expect(element.children('input').is(':checked')).toBeTruthy();
       scope.checkbox.value = 0;
       scope.$digest();
+      $$rAF.flush();
       expect(element).not.toHaveClass('active');
       expect(element.children('input').is(':checked')).toBeFalsy();
     });
@@ -95,6 +102,7 @@ describe('bs-checkbox', function () {
       expect(element.children('input').is(':checked')).toBeTruthy();
       scope.checkbox.value = 'no';
       scope.$digest();
+      $$rAF.flush();
       expect(element).not.toHaveClass('active');
       expect(element.children('input').is(':checked')).toBeFalsy();
     });
@@ -105,6 +113,7 @@ describe('bs-checkbox', function () {
       expect(element.children('input').is(':checked')).toBeFalsy();
       scope.checkbox.value = 'yes';
       scope.$digest();
+      $$rAF.flush();
       expect(element).toHaveClass('active');
       expect(element.children('input').is(':checked')).toBeTruthy();
     });
@@ -126,6 +135,7 @@ describe('bs-checkbox', function () {
       expect(element).not.toHaveClass('active');
       scope.checkbox.value = 1;
       scope.$digest();
+      $$rAF.flush();
       expect(element).toHaveClass('active');
     });
 
@@ -134,6 +144,7 @@ describe('bs-checkbox', function () {
       expect(element).toHaveClass('active');
       scope.checkbox.value = 'no';
       scope.$digest();
+      $$rAF.flush();
       expect(element).not.toHaveClass('active');
     });
 

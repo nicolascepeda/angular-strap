@@ -4,34 +4,25 @@
 // @TODO: submit issue to core
 // '<span ng-if="title"><strong ng-bind="title"></strong>&nbsp;</span><span ng-bind-html="content"></span>' +
 
-angular.module('mgcrea.ngStrap.alert', [])
-
-  .run(function($templateCache) {
-
-    var template =  '' +
-      '<div class="alert" tabindex="-1" ng-class="[type ? \'alert-\' + type : null]">' +
-        '<button type="button" class="close" ng-click="$hide()">&times;</button>' +
-        '<strong ng-bind="title"></strong>&nbsp;<span ng-bind-html="content"></span>' +
-      '</div>';
-
-    $templateCache.put('$alert', template);
-
-  })
+angular.module('mgcrea.ngStrap.alert', ['mgcrea.ngStrap.modal'])
 
   .provider('$alert', function() {
 
     var defaults = this.defaults = {
-      animation: 'animation-fade',
+      animation: 'am-fade',
       prefixClass: 'alert',
+      prefixEvent: 'alert',
       placement: null,
-      template: '$alert',
+      template: 'alert/alert.tpl.html',
       container: false,
       element: null,
       backdrop: false,
       keyboard: true,
       show: true,
       // Specific options
-      duration: false
+      duration: false,
+      type: false,
+      dismissable: true
     };
 
     this.$get = function($modal, $timeout) {
@@ -45,7 +36,8 @@ angular.module('mgcrea.ngStrap.alert', [])
 
         $alert = $modal(options);
 
-        // Support scope as string options [/*title, content, */type]
+        // Support scope as string options [/*title, content, */ type, dismissable]
+        $alert.$scope.dismissable = !!options.dismissable;
         if(options.type) {
           $alert.$scope.type = options.type;
         }
@@ -71,7 +63,7 @@ angular.module('mgcrea.ngStrap.alert', [])
 
   })
 
-  .directive('bsAlert', function($window, $location, $sce, $alert) {
+  .directive('bsAlert', function($window, $sce, $alert) {
 
     var requestAnimationFrame = $window.requestAnimationFrame || $window.setTimeout;
 
@@ -82,14 +74,14 @@ angular.module('mgcrea.ngStrap.alert', [])
 
         // Directive options
         var options = {scope: scope, element: element, show: false};
-        angular.forEach(['template', 'placement', 'keyboard', 'html', 'container', 'animation', 'duration'], function(key) {
+        angular.forEach(['template', 'placement', 'keyboard', 'html', 'container', 'animation', 'duration', 'dismissable'], function(key) {
           if(angular.isDefined(attr[key])) options[key] = attr[key];
         });
 
         // Support scope as data-attrs
         angular.forEach(['title', 'content', 'type'], function(key) {
           attr[key] && attr.$observe(key, function(newValue, oldValue) {
-            scope[key] = newValue;
+            scope[key] = $sce.trustAsHtml(newValue);
           });
         });
 
@@ -110,7 +102,7 @@ angular.module('mgcrea.ngStrap.alert', [])
 
         // Garbage collection
         scope.$on('$destroy', function() {
-          alert.destroy();
+          if (alert) alert.destroy();
           options = null;
           alert = null;
         });

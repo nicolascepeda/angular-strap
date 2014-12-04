@@ -1,17 +1,22 @@
+/* global countScopes */
 'use strict';
 
 describe('dropdown', function () {
 
-  var $compile, $templateCache, scope, sandboxEl;
+  var $compile, $templateCache, scope, sandboxEl, $animate, $timeout;
 
+  beforeEach(module('ngAnimate'));
+  beforeEach(module('ngAnimateMock'));
   beforeEach(module('ngSanitize'));
   beforeEach(module('mgcrea.ngStrap.dropdown'));
 
-  beforeEach(inject(function (_$rootScope_, _$compile_, _$templateCache_) {
+  beforeEach(inject(function (_$rootScope_, _$compile_, _$templateCache_, _$animate_, _$timeout_) {
     scope = _$rootScope_.$new();
     sandboxEl = $('<div>').attr('id', 'sandbox').appendTo($('body'));
     $compile = _$compile_;
     $templateCache = _$templateCache_;
+    $animate = _$animate_;
+    $timeout = _$timeout_;
   }));
 
   afterEach(function() {
@@ -23,14 +28,17 @@ describe('dropdown', function () {
 
   var templates = {
     'default': {
-      scope: {dropdown: [{text: 'Another action', href: '#foo'}, {text: 'Something else here', click: '$alert(\'working ngClick!\')'}, {divider: true}, {text: 'Separated link', href: '#separatedLink'}]},
+      scope: {dropdown: [{text: 'Another action', href: '#foo'}, {text: 'External link', href: '/auth/facebook', target: '_self'}, {text: 'Something else here', click: '$alert(\'working ngClick!\')'}, {divider: true}, {text: 'Separated link', href: '#separatedLink'}]},
       element: '<a bs-dropdown="dropdown">click me</a>'
+    },
+    'in-navbar': {
+      element: '<div class="collapse navbar-collapse"><ul class="nav navbar-nav"><li class="dropdown"><a bs-dropdown="dropdown">click me</a></li></ul>'
     },
     'markup-ngRepeat': {
       element: '<ul><li ng-repeat="i in [1, 2, 3]"><a bs-dropdown="dropdown">{{i}}</a></li></ul>'
     },
     'options-animation': {
-      element: '<a data-animation="animation-flipX" bs-dropdown="dropdown">click me</a>'
+      element: '<a data-animation="am-flip-x" bs-dropdown="dropdown">click me</a>'
     },
     'options-placement': {
       element: '<a data-placement="bottom" bs-dropdown="dropdown">click me</a>'
@@ -47,6 +55,14 @@ describe('dropdown', function () {
     },
     'options-template': {
       element: '<a title="{{dropdown.title}}" data-template="custom" bs-dropdown>click me</a>'
+    },
+    'bsShow-attr': {
+      scope: {dropdown: [{text: 'Another action', href: '#foo'}, {text: 'External link', href: '/auth/facebook', target: '_self'}, {text: 'Something else here', click: '$alert(\'working ngClick!\')'}, {divider: true}, {text: 'Separated link', href: '#separatedLink'}]},
+      element: '<a bs-dropdown="dropdown" bs-show="true">click me</a>'
+    },
+    'bsShow-binding': {
+      scope: {isVisible: false, dropdown: [{text: 'Another action', href: '#foo'}, {text: 'External link', href: '/auth/facebook', target: '_self'}, {text: 'Something else here', click: '$alert(\'working ngClick!\')'}, {divider: true}, {text: 'Separated link', href: '#separatedLink'}]},
+      element: '<a bs-dropdown="dropdown" bs-show="isVisible">click me</a>'
     }
   };
 
@@ -82,16 +98,135 @@ describe('dropdown', function () {
       var elm = compileDirective('default');
       angular.element(elm[0]).triggerHandler('click');
       expect(sandboxEl.find('.dropdown-menu li').length).toBe(scope.dropdown.length);
-      expect(sandboxEl.find('.dropdown-menu li:eq(0)').text()).toBe(scope.dropdown[0].text);
+      expect(sandboxEl.find('.dropdown-menu a:eq(0)').text()).toBe(scope.dropdown[0].text);
+      expect(sandboxEl.find('.dropdown-menu a:eq(0)').attr('href')).toBe(scope.dropdown[0].href);
+      expect(sandboxEl.find('.dropdown-menu a:eq(0)').attr('ng-click')).toBeUndefined();
+      expect(sandboxEl.find('.dropdown-menu a:eq(1)').text()).toBe(scope.dropdown[1].text);
+      expect(sandboxEl.find('.dropdown-menu a:eq(1)').attr('href')).toBe(scope.dropdown[1].href);
+      expect(sandboxEl.find('.dropdown-menu a:eq(1)').attr('target')).toBe(scope.dropdown[1].target);
+      expect(sandboxEl.find('.dropdown-menu a:eq(1)').attr('ng-click')).toBeUndefined();
+      expect(sandboxEl.find('.dropdown-menu a:eq(2)').attr('href')).toBeDefined();
+      expect(sandboxEl.find('.dropdown-menu a:eq(2)').attr('ng-click')).toBe('$eval(item.click);$hide()');
     });
 
     it('should support ngRepeat markup', function() {
       var elm = compileDirective('markup-ngRepeat');
       angular.element(elm.find('[bs-dropdown]:eq(0)')).triggerHandler('click');
       expect(sandboxEl.find('.dropdown-menu li').length).toBe(scope.dropdown.length);
-      expect(sandboxEl.find('.dropdown-menu li:eq(0)').text()).toBe(scope.dropdown[0].text);
+      expect(sandboxEl.find('.dropdown-menu a:eq(0)').text()).toBe(scope.dropdown[0].text);
     });
 
+  });
+
+  describe('resource allocation', function() {
+    it('should not create additional scopes after first show', function() {
+      var elm = compileDirective('default');
+      angular.element(elm[0]).triggerHandler('click');
+      $animate.triggerCallbacks();
+      expect(sandboxEl.children('.dropdown-menu').length).toBe(1);
+      angular.element(elm[0]).triggerHandler('click');
+      $animate.triggerCallbacks();
+      expect(sandboxEl.children('.dropdown-menu').length).toBe(0);
+
+      var scopeCount = countScopes(scope, 0);
+
+      for (var i = 0; i < 10; i++) {
+        angular.element(elm[0]).triggerHandler('click');
+        $animate.triggerCallbacks();
+        angular.element(elm[0]).triggerHandler('click');
+        $animate.triggerCallbacks();
+      }
+
+      expect(countScopes(scope, 0)).toBe(scopeCount);
+    });
+
+    it('should destroy scopes when destroying directive scope', function() {
+      var scopeCount = countScopes(scope, 0);
+      var originalScope = scope;
+      scope = scope.$new();
+      var elm = compileDirective('default');
+
+      for (var i = 0; i < 10; i++) {
+        angular.element(elm[0]).triggerHandler('click');
+        $animate.triggerCallbacks();
+        angular.element(elm[0]).triggerHandler('click');
+        $animate.triggerCallbacks();
+      }
+
+      scope.$destroy();
+      scope = originalScope;
+      expect(countScopes(scope, 0)).toBe(scopeCount);
+    });
+
+    it('should remove body click handlers when the directive scope is destroyed', function() {
+      var elm = compileDirective('default');
+      angular.element(elm[0]).triggerHandler('click');
+      $timeout.flush();
+      expect(sandboxEl.children('.dropdown-menu').length).toBe(1);
+      scope.$destroy();
+      expect(sandboxEl.children('.dropdown-menu').length).toBe(0);
+      expect(function() { $('body').triggerHandler('click'); }).not.toThrow();
+    });
+  });
+
+  describe('bsShow attribute', function() {
+    it('should support setting to a boolean value', function() {
+      var elm = compileDirective('bsShow-attr');
+      expect(sandboxEl.children('.dropdown-menu').length).toBe(1);
+    });
+
+    it('should support binding', function() {
+      var elm = compileDirective('bsShow-binding');
+      expect(scope.isVisible).toBeFalsy();
+      expect(sandboxEl.children('.dropdown-menu').length).toBe(0);
+      scope.isVisible = true;
+      scope.$digest();
+      expect(sandboxEl.children('.dropdown-menu').length).toBe(1);
+      scope.isVisible = false;
+      scope.$digest();
+      expect(sandboxEl.children('.dropdown-menu').length).toBe(0);
+    });
+
+    it('should support initial value false', function() {
+      var elm = compileDirective('bsShow-binding');
+      expect(scope.isVisible).toBeFalsy();
+      expect(sandboxEl.children('.dropdown-menu').length).toBe(0);
+    });
+
+    it('should support initial value true', function() {
+      var elm = compileDirective('bsShow-binding', {isVisible: true});
+      expect(scope.isVisible).toBeTruthy();
+      expect(sandboxEl.children('.dropdown-menu').length).toBe(1);
+    });
+
+    it('should support undefined value', function() {
+      var elm = compileDirective('bsShow-binding', {isVisible: undefined});
+      expect(sandboxEl.children('.dropdown-menu').length).toBe(0);
+    });
+
+    it('should support string value', function() {
+      var elm = compileDirective('bsShow-binding', {isVisible: 'a string value'});
+      expect(sandboxEl.children('.dropdown-menu').length).toBe(0);
+      scope.isVisible = 'TRUE';
+      scope.$digest();
+      expect(sandboxEl.children('.dropdown-menu').length).toBe(1);
+      scope.isVisible = 'tooltip';
+      scope.$digest();
+      expect(sandboxEl.children('.dropdown-menu').length).toBe(0);
+      scope.isVisible = 'dropdown,datepicker';
+      scope.$digest();
+      expect(sandboxEl.children('.dropdown-menu').length).toBe(1);
+    });
+  });
+
+  describe('in navbar', function() {
+    it('should add class .open to the parent <li> when dropdown is open', function() {
+      var elm = compileDirective('in-navbar');
+      angular.element(elm.find('a')).triggerHandler('click');
+      expect(sandboxEl.find('.dropdown').hasClass('open')).toBeTruthy();
+      angular.element(elm.find('a')).triggerHandler('click');
+      expect(sandboxEl.find('.dropdown').hasClass('open')).toBeFalsy();
+    });
   });
 
 
@@ -99,37 +234,44 @@ describe('dropdown', function () {
 
     describe('animation', function () {
 
-      it('should default to `animation-fade` animation', function() {
+      it('should default to `am-fade` animation', function() {
         var elm = compileDirective('default');
         angular.element(elm[0]).triggerHandler('click');
-        expect(sandboxEl.children('.dropdown-menu').hasClass('animation-fade')).toBeTruthy();
+        expect(sandboxEl.children('.dropdown-menu').hasClass('am-fade')).toBeTruthy();
       });
 
       it('should support custom animation', function() {
         var elm = compileDirective('options-animation');
         angular.element(elm[0]).triggerHandler('click');
-        expect(sandboxEl.children('.dropdown-menu').hasClass('animation-flipX')).toBeTruthy();
+        expect(sandboxEl.children('.dropdown-menu').hasClass('am-flip-x')).toBeTruthy();
       });
 
     });
 
     describe('placement', function () {
+      var $$rAF;
+      beforeEach(inject(function (_$$rAF_) {
+        $$rAF = _$$rAF_
+      }));
 
       it('should default to `top` placement', function() {
         var elm = compileDirective('default');
         angular.element(elm[0]).triggerHandler('click');
+        $$rAF.flush();
         expect(sandboxEl.children('.dropdown-menu').hasClass('bottom-left')).toBeTruthy();
       });
 
       it('should support placement', function() {
         var elm = compileDirective('options-placement');
         angular.element(elm[0]).triggerHandler('click');
+        $$rAF.flush();
         expect(sandboxEl.children('.dropdown-menu').hasClass('bottom')).toBeTruthy();
       });
 
       it('should support exotic-placement', function() {
         var elm = compileDirective('options-placement-exotic');
         angular.element(elm[0]).triggerHandler('click');
+        $$rAF.flush();
         expect(sandboxEl.children('.dropdown-menu').hasClass('bottom-right')).toBeTruthy();
       });
 
@@ -154,7 +296,7 @@ describe('dropdown', function () {
         var elm = compileDirective('options-html');
         angular.element(elm[0]).triggerHandler('click');
         expect(sandboxEl.find('.dropdown-menu li').length).toBe(scope.dropdown.length);
-        expect(sandboxEl.find('.dropdown-menu li:eq(0)').text()).toBe(scope.dropdown[0].text);
+        expect(sandboxEl.find('.dropdown-menu a:eq(0)').text()).toBe(scope.dropdown[0].text);
       });
 
     });
@@ -172,11 +314,11 @@ describe('dropdown', function () {
         $templateCache.put('custom', '<div class="dropdown"><div class="dropdown-inner"><ul><li ng-repeat="item in dropdown">{{$index}}</li></ul></div></div>');
         var elm = compileDirective('options-template');
         angular.element(elm[0]).triggerHandler('click');
-        expect(sandboxEl.find('.dropdown-inner').text()).toBe('0123');
+        expect(sandboxEl.find('.dropdown-inner').text()).toBe('01234');
         // Consecutive toggles
         angular.element(elm[0]).triggerHandler('click');
         angular.element(elm[0]).triggerHandler('click');
-        expect(sandboxEl.find('.dropdown-inner').text()).toBe('0123');
+        expect(sandboxEl.find('.dropdown-inner').text()).toBe('01234');
       });
 
       it('should support template with ngClick', function() {

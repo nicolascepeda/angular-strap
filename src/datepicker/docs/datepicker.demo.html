@@ -12,12 +12,13 @@
 
   <div class="callout callout-danger">
     <h4>Plugin dependency</h4>
-    <p>Datepickers require the <a href="#tooltips">tooltip module</a> to be loaded.</p>
+    <p>Datepickers require the <a href="#tooltips">tooltip module</a> and <a href="//github.com/mgcrea/angular-strap/blob/master/src/helpers/date-parser.js" target="_blank">dateParser helper</a> module to be loaded.</p>
+    <p>These docs currently use <a href="//github.com/mgcrea/bootstrap-additions/blob/master/src/datepicker/datepicker.less" target="_blank">bootstrap-additions</a> for styling purposes.</p>
   </div>
 
   <div class="callout callout-info">
-    <h4>Strong support for locales</h4>
-    <p>This datepicker leverages the <a href="http://docs.angularjs.org/api/ng.$locale">$locale</a> service. You just have to load the proper <a href="http://docs.angularjs.org/guide/i18n">i18n</a> file to seamlessly translate your datepickers.</p>
+    <h4>Support for locales</h4>
+    <p>This module leverages the <a href="http://docs.angularjs.org/api/ng.$locale">$locale</a> service. You just have to load the proper <a href="http://docs.angularjs.org/guide/i18n">i18n</a> file to seamlessly translate your datepickers.</p>
   </div>
 
   <h3>Live demo <a class="small edit-plunkr" data-module-name="mgcrea.ngStrapDocs" data-content-html-url="datepicker/docs/datepicker.demo.html" data-content-js-url="datepicker/docs/datepicker.demo.js" ng-plunkr data-placement="right" bs-tooltip></a></h3>
@@ -28,7 +29,7 @@ $scope.untilDate = {{untilDate}}; // &lt;- {{ getType('untilDate') }}
 </pre>
   <div class="bs-example" style="padding-bottom: 24px;" append-source>
     <form name="datepickerForm" class="form-inline" role="form">
-      <!-- Classic example -->
+      <!-- Basic example -->
       <div class="form-group" ng-class="{'has-error': datepickerForm.date.$invalid}">
         <label class="control-label"><i class="fa fa-calendar"></i> Date <small>(as date)</small></label>
         <input type="text" class="form-control" ng-model="selectedDate" name="date" bs-datepicker>
@@ -42,11 +43,11 @@ $scope.untilDate = {{untilDate}}; // &lt;- {{ getType('untilDate') }}
       <!-- Date range example -->
       <div class="form-group">
         <label class="control-label"><i class="fa fa-calendar"></i> <i class="fa fa-arrows-h"></i> <i class="fa fa-calendar"></i> Date range <small>(dynamic)</small></label><br>
-        <div class="form-group" class="col-xs-3">
-          <input type="text" class="form-control" ng-model="fromDate"  data-max-date="{{untilDate}}" data-autoclose="1" placeholder="From" bs-datepicker>
+        <div class="form-group col-xs-6">
+          <input type="text" class="form-control" ng-model="fromDate"  data-max-date="{{untilDate}}" placeholder="From" bs-datepicker>
         </div>
-        <div class="form-group" class="col-xs-3">
-          <input type="text" class="form-control" ng-model="untilDate"  data-min-date="{{fromDate}}" data-autoclose="1" placeholder="Until" bs-datepicker>
+        <div class="form-group col-xs-6">
+          <input type="text" class="form-control" ng-model="untilDate"  data-min-date="{{fromDate}}" placeholder="Until" bs-datepicker>
         </div>
       </div>
     </form>
@@ -61,7 +62,7 @@ $scope.untilDate = {{untilDate}}; // &lt;- {{ getType('untilDate') }}
     <div class="highlight">
       <pre>
         <code class="javascript" highlight-block>
-          var myDatepicker = $datepicker(element, controller);
+          var myDatepicker = $datepicker(element, ngModelController);
         </code>
       </pre>
     </div>
@@ -71,8 +72,8 @@ $scope.untilDate = {{untilDate}}; // &lt;- {{ getType('untilDate') }}
   <p>Options can be passed via data-attributes on the directive or as an object hash to configure the service. For data attributes, append the option name to <code>data-</code>, as in <code>data-animation=""</code>.</p>
   <div class="callout callout-info">
     <h4>This module supports exotic placement options!</h4>
-    <p>You can position your select in corners (such as <code>bottom-left</code>) or any other combination two.</p>
-    <p>Exotic placement options are not part of the Bootstrap's core, to use them you must use <code>bootstrap-additions.css</code> from the <a href="//github.com/mgcrea/bootstrap-additions" target="_blank">BootstrapAdditions</a> project. This project being not yet fully released, meanwhile, you can use the <a href="//mgcrea.github.io/angular-strap/static/styles/bootstrap-additions.min.css" target="_blank">development snapshot</a> compiled for theses docs.</p>
+    <p>You can position your datepicker in corners (such as <code>bottom-left</code>) or any other combination two.</p>
+    <p>Exotic placement options are not part of the Bootstrap's core, to use them you must use <code>bootstrap-additions.css</code> from the <a href="//github.com/mgcrea/bootstrap-additions" target="_blank">BootstrapAdditions</a> project. This project being not yet fully released, meanwhile, you can use the <a href="//mgcrea.github.io/angular-strap/static/styles/bootstrap-additions.min.css" target="_blank">development snapshot</a> compiled for these docs.</p>
   </div>
   <div class="table-responsive">
     <table class="table table-bordered table-striped">
@@ -88,20 +89,23 @@ $scope.untilDate = {{untilDate}}; // &lt;- {{ getType('untilDate') }}
         <tr>
           <td>animation</td>
           <td>string</td>
-          <td>animation-fade</td>
+          <td>am-fade</td>
           <td>apply a CSS animation powered by <code>ngAnimate</code></td>
         </tr>
         <tr>
           <td>placement</td>
           <td>string</td>
           <td>'bottom-left'</td>
-          <td>how to position the typeahead - top | bottom | left | right, or any combination like bottom-left.</td>
+          <td>
+            how to position the datepicker - top | bottom | left | right | auto, or any combination like bottom-left or auto bottom-left.<br>
+            When "auto" is specified, it will dynamically reorient the datepicker. For example, if placement is "auto left", the datepicker will display to the left when possible, otherwise it will display right.
+          </td>
         </tr>
         <tr>
           <td>trigger</td>
           <td>string</td>
           <td>'focus'</td>
-          <td>how typeahead is triggered - click | hover | focus | manual</td>
+          <td>how datepicker is triggered - click | hover | focus | manual</td>
         </tr>
         <tr>
           <td>html</td>
@@ -114,7 +118,7 @@ $scope.untilDate = {{untilDate}}; // &lt;- {{ getType('untilDate') }}
           <td>number | object</td>
           <td>0</td>
           <td>
-            <p>delay showing and hiding the typeahead (ms) - does not apply to manual trigger type</p>
+            <p>delay showing and hiding the datepicker (ms) - does not apply to manual trigger type</p>
             <p>If a number is supplied, delay is applied to both hide/show</p>
             <p>Object structure is:
               <code>delay: { show: 500, hide: 100 }</code>
@@ -126,14 +130,14 @@ $scope.untilDate = {{untilDate}}; // &lt;- {{ getType('untilDate') }}
           <td>string | false</td>
           <td>false</td>
           <td>
-            <p>Appends the typeahead to a specific element. Example:
-              <code>container: 'body'</code>. This option is particularly useful in that it allows you to position the typeahead in the flow of the document near the triggering element -&nbsp;which will prevent the typeahead from floating away from the triggering element during a window resize.</p>
+            <p>Appends the datepicker to a specific element. Example:
+              <code>container: 'body'</code>. This option is particularly useful in that it allows you to position the datepicker in the flow of the document near the triggering element -&nbsp;which will prevent the datepicker from floating away from the triggering element during a window resize.</p>
           </td>
         </tr>
         <tr>
           <td>template</td>
           <td>path | id</td>
-          <td>'$typeahead'</td>
+          <td>'$datepicker'</td>
           <td>
             <p>If provided, overrides the default template, can be either a remote URL or a cached template id.</p>
           </td>
@@ -144,6 +148,14 @@ $scope.untilDate = {{untilDate}}; // &lt;- {{ getType('untilDate') }}
           <td>'shortDate'</td>
           <td>
             <p>Rendering format of your date, leverages <a href="http://docs.angularjs.org/api/ng.filter:date">ng.filter:date</a>.</p>
+          </td>
+        </tr>
+        <tr>
+          <td>modelDateFormat</td>
+          <td>string</td>
+          <td>null</td>
+          <td>
+            <p>Model format of your date, leverages <a href="http://docs.angularjs.org/api/ng.filter:date">ng.filter:date</a>.</p>
           </td>
         </tr>
         <tr>
@@ -160,6 +172,14 @@ $scope.untilDate = {{untilDate}}; // &lt;- {{ getType('untilDate') }}
           <td>false</td>
           <td>
             <p>Whether the picker should close itself upon select.</p>
+          </td>
+        </tr>
+        <tr>
+          <td>useNative</td>
+          <td>boolean</td>
+          <td>false</td>
+          <td>
+            <p>Whether to use a native component if available (iOS/Android).</p>
           </td>
         </tr>
         <tr>
@@ -183,7 +203,7 @@ $scope.untilDate = {{untilDate}}; // &lt;- {{ getType('untilDate') }}
           <td>number</td>
           <td>0</td>
           <td>
-            <p>View that sould be opened by default - 0 | 1 | 2.</p>
+            <p>View that sould be opened by default - 0 | 1 | 2.</p>
           </td>
         </tr>
         <tr>
@@ -191,15 +211,56 @@ $scope.untilDate = {{untilDate}}; // &lt;- {{ getType('untilDate') }}
           <td>number</td>
           <td>0</td>
           <td>
-            <p>Minimum allowed view - 0 | 1 | 2. 1 will only allow month selection.</p>
+            <p>Minimum allowed view - 0 | 1 | 2. 1 will only allow month selection.</p>
           </td>
         </tr>
         <tr>
-          <td>weekStart</td>
+          <td>startWeek</td>
           <td>number</td>
           <td>1</td>
           <td>
             <p>First day of the week.</p>
+          </td>
+        </tr>
+        <tr>
+          <td>startDate</td>
+          <td>date*</td>
+          <td>today</td>
+          <td>
+            <p>Date that should be opened by default.</p>
+          </td>
+        </tr>
+        <tr>
+          <td>iconLeft</td>
+          <td>string</td>
+          <td>'glyphicon glyphicon-chevron-left'</td>
+          <td>
+            <p>CSS class for 'left' icon.</p>
+          </td>
+        </tr>
+        <tr>
+          <td>iconRight</td>
+          <td>string</td>
+          <td>'glyphicon glyphicon-chevron-right'</td>
+          <td>
+            <p>CSS class for 'right' icon.</p>
+          </td>
+        </tr>
+        <tr>
+          <td>daysOfWeekDisabled</td>
+          <td>string</td>
+          <td>''</td>
+          <td>
+            <p>List of decimal days of the week values that are disabled and hence cannot be selected. For example, '06' disables Sunday and Saturday, '12345' disables Monday to Friday.</p>
+          </td>
+        </tr>
+        <tr>
+          <td>disabledDates</td>
+          <td>array of date ranges</td>
+          <td>[]</td>
+          <td>
+            <p>Array of date ranges to disable.</p>
+            <p>Example date range: <code>{ start: new Date(2010, 11, 24), end: new Date(2010, 11, 25) }</code></p>
           </td>
         </tr>
       </tbody>
@@ -215,7 +276,7 @@ $scope.untilDate = {{untilDate}}; // &lt;- {{ getType('untilDate') }}
           .config(function($datepickerProvider) {
             angular.extend($datepickerProvider.defaults, {
               dateFormat: 'dd/MM/yyyy',
-              weekStart: 1
+              startWeek: 1
             });
           })
         </code>

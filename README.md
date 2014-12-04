@@ -1,65 +1,78 @@
-# [AngularStrap](http://mgcrea.github.io/angular-strap) [![Build Status](https://secure.travis-ci.org/mgcrea/angular-strap.png?branch=master)](http://travis-ci.org/#!/mgcrea/angular-strap) [![Dependency Status](https://gemnasium.com/mgcrea/angular-strap.png)](https://gemnasium.com/mgcrea/angular-strap) [![Analytics](https://ga-beacon.appspot.com/UA-1813303-10/angular-strap/readme?pixel)](https://github.com/igrigorik/ga-beacon)
+# [AngularStrap](http://mgcrea.github.io/angular-strap) [![Build Status](http://img.shields.io/travis/mgcrea/angular-strap/master.svg?style=flat)](http://travis-ci.org/mgcrea/angular-strap) [![devDependency Status](http://img.shields.io/david/dev/mgcrea/angular-strap.svg?style=flat)](https://david-dm.org/mgcrea/angular-strap#info=devDependencies) [![Coverage Status](http://img.shields.io/codeclimate/coverage/github/mgcrea/angular-strap.svg?style=flat)](https://codeclimate.com/github/mgcrea/angular-strap) [![Tips](http://img.shields.io/gratipay/mgcrea.svg?style=flat)](https://gratipay.com/mgcrea)
 
-[![Banner](http://mgcrea.github.io/angular-strap/images/6af654d7.snippet.png)](http://mgcrea.github.io/angular-strap)
+[![Banner](http://mgcrea.github.io/angular-strap/images/snippet.png)](http://mgcrea.github.io/angular-strap)
 
-AngularStrap is a set of native directives that enables seamless integration of [Twitter Bootstrap 3.0+](https://github.com/twbs/bootstrap) into your [AngularJS 1.2.0+](https://github.com/angular/angular.js) app.
+AngularStrap is a set of native directives that enables seamless integration of [Bootstrap 3.0+](https://github.com/twbs/bootstrap) into your [AngularJS 1.2+](https://github.com/angular/angular.js) app.
 
->
-AngularStrap was initially written to provide AngularJS wrapping directives for Twitter Bootstrap. It used to leverage the javascript code written by Bootstrap's contributors to minimize work, retro-compatibility issues & time to market.
->
-While it worked pretty well, it required a big javascript payload: both jQuery & Twitter Bootstrap libraries. When the 1.2 release of AngularJS showed up with the ngAnimate module, greatly simplifying DOM manipulation, we knew it was time for a rewrite!
+- With no external dependency except the [Bootstrap CSS Styles](https://github.com/twbs/bootstrap/blob/master/dist/css/bootstrap.css), AngularStrap is lighter and faster than ever as it does leverage the power of ngAnimate from AngularJS 1.2+!
+
+- If you don't want to use `ngAnimate`, you will have to include a tiny [ngAnimate mock](https://github.com/mgcrea/angular-strap/wiki/ngAnimate-mock).
 
 ## Documentation and examples
 
 + Check the [documentation](http://mgcrea.github.io/angular-strap) and [changelog](https://github.com/mgcrea/angular-strap/releases).
 
+## Communication
 
+- If you **need help**, use [Stack Overflow](http://stackoverflow.com/questions/tagged/angular-strap). (Tag 'angular-strap')
+- If you'd like to **ask a general question**, use [Stack Overflow](http://stackoverflow.com/questions/tagged/angular-strap).
+- If you **found a bug**, open an issue.
+- If you **have a feature request**, open an issue.
+- If you **want to contribute**, submit a pull request.
 
 ## Quick start
 
-+ Include the required libraries (cdn/local)
++ Install AngularStrap with [Bower](https://github.com/bower/bower).
+
+>
+```bash
+$ bower install angular-strap --save
+```
+
++ Include the required libraries is your `index.html`:
 
 >
 ``` html
-<script src="//ajax.googleapis.com/ajax/libs/angularjs/1.2.9/angular.min.js"></script>
-<script src="//rawgithub.com/mgcrea/angular-strap/master/dist/angular-strap.min.js"></script>
-<script src="//rawgithub.com/mgcrea/angular-strap/master/dist/angular-strap.tpl.min.js"></script>
+<script src="bower_components/angular/angular.js"></script>
+<script src="bower_components/angular-animate/angular-animate.js"></script>
+<script src="bower_components/angular-strap/dist/angular-strap.min.js"></script>
+<script src="bower_components/angular-strap/dist/angular-strap.tpl.min.js"></script>
 ```
 
-+ Inject the `ngStrap` module into your app
++ Inject the `mgcrea.ngStrap` module into your app:
 
 >
-``` javascript
-angular.module('myApp', ['mgcrea.ngStrap']);
+``` js
+angular.module('myApp', ['ngAnimate', 'mgcrea.ngStrap']);
 ```
 
 
 ## Developers
 
-Clone the repo, `git clone git://github.com/mgcrea/angular-strap.git`, [download the latest release](https://github.com/mgcrea/angular-strap/zipball/master) or install with bower `bower install angular-strap#~2.0.0 --save`.
+Clone the repo, `git clone git://github.com/mgcrea/angular-strap.git`, [download the latest release](https://github.com/mgcrea/angular-strap/zipball/master) or install with bower `bower install angular-strap --save`.
 
 AngularStrap is tested with `karma` against the latest stable release of AngularJS.
 
 >
-	$ npm install grunt-cli --global
-	$ npm install --dev
-	$ grunt test
+	$ npm install
+	$ bower install
+	$ gulp test
 
-You can build the latest version using `grunt`.
+You can build the latest version using `gulp`.
 
 >
-	$ grunt build
+	$ gulp build
 
 You can quickly hack around (the docs) with:
 
 >
-	$ grunt serve
+	$ gulp serve
 
 
 
 ## Contributing
 
-Please submit all pull requests the against master branch. If your unit test contains JavaScript patches or features, you should include relevant unit tests. Thanks!
+Please submit all pull requests the against master branch. If your pull request contains JavaScript patches or features, you should include relevant unit tests. Thanks!
 
 
 
@@ -76,7 +89,7 @@ Please submit all pull requests the against master branch. If your unit test con
 
 	The MIT License
 
-	Copyright (c) 2012 Olivier Louvignes
+	Copyright (c) 2012 - 2014 Olivier Louvignes
 
 	Permission is hereby granted, free of charge, to any person obtaining a copy
 	of this software and associated documentation files (the "Software"), to deal
