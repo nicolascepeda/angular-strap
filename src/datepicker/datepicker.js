@@ -26,7 +26,7 @@ angular.module('mgcrea.ngStrap.datepicker', ['mgcrea.ngStrap.tooltip'])
       weekStart: 0
     };
 
-    this.$get = function($window, $document, $rootScope, $sce, $locale, dateFilter, datepickerViews, $tooltip) {
+    this.$get = function($window, $document, $rootScope, $sce, $locale, dateFilter, datepickerViews, $tooltip, $timeout) {
 
       var bodyEl = angular.element($window.document.body);
       var isTouch = 'createTouch' in $window.document;
@@ -72,22 +72,22 @@ angular.module('mgcrea.ngStrap.datepicker', ['mgcrea.ngStrap.tooltip'])
           }
         };
 
-        $datepicker.select = function(date, keepMode) {
-          // console.warn('$datepicker.select', date, scope.$mode);
-          if(!angular.isDate(date)) date = new Date(date);
-          controller.$dateValue.setFullYear(date.getFullYear(), date.getMonth(), date.getDate());
-          if(!scope.$mode || keepMode) {
-            controller.$setViewValue(controller.$dateValue);
-            controller.$render();
-            if(options.autoclose && !keepMode) {
-              $datepicker.hide(true);
-            }
-          } else {
-            angular.extend(viewDate, {year: date.getFullYear(), month: date.getMonth(), date: date.getDate()});
-            $datepicker.setMode(scope.$mode - 1);
-            $datepicker.$build();
-          }
-        };
+          $datepicker.select = function(date, keepMode) {
+              // console.warn('$datepicker.select', date, scope.$mode);
+              if(!angular.isDate(date)) date = new Date(date);
+              controller.$dateValue.setFullYear(date.getFullYear(), date.getMonth(), date.getDate());
+              if(!scope.$mode || keepMode) {
+                  controller.$setViewValue(angular.copy(controller.$dateValue));
+                  controller.$render();
+                  if(options.autoclose && !keepMode) {
+                      $timeout(function() { $datepicker.hide(true); });
+                  }
+              } else {
+                  angular.extend(viewDate, {year: date.getFullYear(), month: date.getMonth(), date: date.getDate()});
+                  $datepicker.setMode(scope.$mode - 1);
+                  $datepicker.$build();
+              }
+          };
 
         $datepicker.setMode = function(mode) {
           // console.warn('$datepicker.setMode', mode);
