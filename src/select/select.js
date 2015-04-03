@@ -54,9 +54,29 @@ angular.module('mgcrea.ngStrap.select', ['mgcrea.ngStrap.tooltip', 'mgcrea.ngStr
 
                 scope.$selectAll = function () {
                     scope.$$postDigest(function () {
+                        var countActive = 0;
                         for (var i = 0; i < scope.$matches.length; i++) {
-                            if (!scope.$isActive(i)) {
-                                $select.selectNoEmit(i);
+                            if (scope.$isActive(i)) {
+                                countActive++;
+                            }
+                        }
+                        console.log("countActive:", countActive, " matches: ", scope.$matches.length);
+                        
+                        var activate = (countActive != scope.$matches.length);
+
+                        if(!activate){
+                            if(options.multiple && angular.isArray(controller.$modelValue)){
+                                scope.$activeIndex = [];
+                            }
+                        controller.$setViewValue(scope.$activeIndex.map(function (index) {
+                            return scope.$matches[index].value;
+                        }));
+
+                        } else {
+                            for (var i = 0; i < scope.$matches.length; i++) {
+                                if(!scope.$isActive(i)){
+                                    $select.selectNoEmit(i);
+                                }
                             }
                         }
                         scope.$emit('$select.select', null, 0);
