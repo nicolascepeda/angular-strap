@@ -60,7 +60,6 @@ angular.module('mgcrea.ngStrap.select', ['mgcrea.ngStrap.tooltip', 'mgcrea.ngStr
                                 countActive++;
                             }
                         }
-                        console.log("countActive:", countActive, " matches: ", scope.$matches.length);
                         
                         var activate = (countActive != scope.$matches.length);
 
