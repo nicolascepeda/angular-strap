@@ -1,6 +1,6 @@
 /**
  * angular-strap
- * @version v2.0.0-beta.4 - 2014-04-01
+ * @version v2.0.0-beta.4 - 2015-04-03
  * @link http://mgcrea.github.io/angular-strap
  * @author [object Object]
  * @license MIT License, http://www.opensource.org/licenses/MIT
@@ -539,7 +539,8 @@
       'dateFilter',
       'datepickerViews',
       '$tooltip',
-      function ($window, $document, $rootScope, $sce, $locale, dateFilter, datepickerViews, $tooltip) {
+      '$timeout',
+      function ($window, $document, $rootScope, $sce, $locale, dateFilter, datepickerViews, $tooltip, $timeout) {
         var bodyEl = angular.element($window.document.body);
         var isTouch = 'createTouch' in $window.document;
         var isAppleTouch = /(iP(a|o)d|iPhone)/g.test($window.navigator.userAgent);
@@ -582,10 +583,12 @@
               date = new Date(date);
             controller.$dateValue.setFullYear(date.getFullYear(), date.getMonth(), date.getDate());
             if (!scope.$mode || keepMode) {
-              controller.$setViewValue(controller.$dateValue);
+              controller.$setViewValue(angular.copy(controller.$dateValue));
               controller.$render();
               if (options.autoclose && !keepMode) {
-                $datepicker.hide(true);
+                $timeout(function () {
+                  $datepicker.hide(true);
+                });
               }
             } else {
               angular.extend(viewDate, {
@@ -2201,6 +2204,16 @@
               $select.select(index);
             });
           };
+          scope.$selectAll = function () {
+            scope.$$postDigest(function () {
+              for (var i = 0; i < scope.$matches.length; i++) {
+                if (!scope.$isActive(i)) {
+                  $select.selectNoEmit(i);
+                }
+              }
+              scope.$emit('$select.select', null, 0);
+            });
+          };
           scope.$isVisible = function () {
             return $select.$isVisible();
           };
@@ -2255,6 +2268,27 @@
             }
             // Emit event
             scope.$emit('$select.select', value, index);
+          };
+          $select.selectNoEmit = function (index) {
+            var value = scope.$matches[index].value;
+            $select.activate(index);
+            if (options.multiple) {
+              controller.$setViewValue(scope.$activeIndex.map(function (index) {
+                return scope.$matches[index].value;
+              }));
+            } else {
+              controller.$setViewValue(value);
+            }
+            controller.$render();
+            if (parentScope)
+              parentScope.$digest();
+            // Hide if single select
+            if (!options.multiple) {
+              if (options.trigger === 'focus')
+                element[0].blur();
+              else if ($select.$isShown)
+                $select.hide();
+            }
           };
           // Protected methods
           $select.$isVisible = function () {
@@ -2425,11 +2459,11 @@
               if (selected.length == 0) {
                 selected = null;
               } else if (selected.length == parsedOptions.$values.length) {
-                selected = $translate('bsSelect.allSelected');
+                selected = $translate.instant('bsSelect.allSelected');
               } else if (selected.length == 1) {
                 selected = selected[0];
               } else if (selected.length > 1) {
-                selected = $translate('bsSelect.nSelected', { count: selected.length });
+                selected = $translate.instant('bsSelect.nSelected', { count: selected.length });
               }
             } else {
               index = select.$getIndex(controller.$modelValue);

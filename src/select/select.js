@@ -313,11 +313,11 @@ angular.module('mgcrea.ngStrap.select', ['mgcrea.ngStrap.tooltip', 'mgcrea.ngStr
                         if (selected.length == 0) {
                             selected = null;
                         } else if (selected.length == parsedOptions.$values.length) {
-                            selected = $translate("bsSelect.allSelected");
+                            selected = $translate.instant("bsSelect.allSelected");
                         } else if (selected.length == 1) {
                             selected = selected[0]
                         } else if (selected.length > 1) {
-                            selected = $translate("bsSelect.nSelected", {count: selected.length});
+                            selected = $translate.instant("bsSelect.nSelected", {count: selected.length});
                         }
 
                     } else {

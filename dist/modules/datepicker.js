@@ -1,6 +1,6 @@
 /**
  * angular-strap
- * @version v2.0.0-beta.4 - 2014-04-01
+ * @version v2.0.0-beta.4 - 2015-04-03
  * @link http://mgcrea.github.io/angular-strap
  * @author [object Object]
  * @license MIT License, http://www.opensource.org/licenses/MIT
@@ -36,7 +36,8 @@ angular.module('mgcrea.ngStrap.datepicker', ['mgcrea.ngStrap.tooltip']).provider
     'dateFilter',
     'datepickerViews',
     '$tooltip',
-    function ($window, $document, $rootScope, $sce, $locale, dateFilter, datepickerViews, $tooltip) {
+    '$timeout',
+    function ($window, $document, $rootScope, $sce, $locale, dateFilter, datepickerViews, $tooltip, $timeout) {
       var bodyEl = angular.element($window.document.body);
       var isTouch = 'createTouch' in $window.document;
       var isAppleTouch = /(iP(a|o)d|iPhone)/g.test($window.navigator.userAgent);
@@ -79,10 +80,12 @@ angular.module('mgcrea.ngStrap.datepicker', ['mgcrea.ngStrap.tooltip']).provider
             date = new Date(date);
           controller.$dateValue.setFullYear(date.getFullYear(), date.getMonth(), date.getDate());
           if (!scope.$mode || keepMode) {
-            controller.$setViewValue(controller.$dateValue);
+            controller.$setViewValue(angular.copy(controller.$dateValue));
             controller.$render();
             if (options.autoclose && !keepMode) {
-              $datepicker.hide(true);
+              $timeout(function () {
+                $datepicker.hide(true);
+              });
             }
           } else {
             angular.extend(viewDate, {
